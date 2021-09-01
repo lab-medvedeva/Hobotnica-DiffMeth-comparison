@@ -15,7 +15,7 @@ get_H_score<-function(dataset_name, method, signature, trt, cores)
 
     if (sig_length < 2)
     {
-        return(list(H=0.5, pvalue=NULL))
+        return(list(H=0.5, pvalue=NA))
     }
     
     ratio_table<-read.table(file = "ratio_table", sep="\t")

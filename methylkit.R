@@ -147,7 +147,12 @@ process_dataset<-function(overdispersion, cores)
         context="CpG" )
 
     meth<-unite(meth_obj, mc.cores=cores)
-    meth_diff<-calculateDiffMeth(meth,  mc.cores = cores)
+    if (overdispersion) {
+        meth_diff<-calculateDiffMeth(meth, overdispersion="MN", test="Chisq", mc.cores = cores)
+    } else {
+        meth_diff<-calculateDiffMeth(meth,  mc.cores = cores)
+    }
+
     dmls_qvalue <-getMethylDiff(meth_diff,difference=0,qvalue=0.05)
     dmls_sorted<-dmls_qvalue[order(dmls_qvalue$qvalue),]
     write.table(dmls_sorted, paste(dataset_name, method_name, "full", sep = "_"), sep = '\t')

@@ -129,9 +129,9 @@ write.table(cpg_num_table, file = "cpg_num_table", sep="\t", col.names=TRUE, quo
 
 # Run HMM-DM
 run_hmm <- function(chr){
-    total_reads<-read.table(file.path(opt$working_dir, paste0("HMM_DM_cov_chr",chr)))
-    meth_reads<-read.table(file.path(opt$working_dir, paste0("HMM_DM_meth_chr",chr)))
-    output_dir<-file.path(opt$working_dir, paste0("HMM_DM_chr",chr))
+    total_reads<-read.table(paste0("HMM_DM_cov_chr",chr))
+    meth_reads<-read.table(paste0("HMM_DM_meth_chr",chr))
+    output_dir<-paste0("HMM_DM_chr",chr)
     system(paste0('mkdir ', output_dir))
     HMM.DM(total_reads, meth_reads, n1=n1, n2=n2, iterations=60, chromosome=chr, opt$hmm_dir, output_dir, meanDiff.cut = 0, min.percent = 0)
 }
