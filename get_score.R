@@ -35,6 +35,8 @@ get_H_score<-function(dataset_name, method, signature, trt, cores)
     # Save random values
     random_table_name<-paste(dataset_name, method, "H_random", sig_length, sep = "_")
     write.table(H_random, random_table_name, sep="\t", col.names=FALSE, row.names = FALSE, quote = FALSE)
-    pvalue<-sum(H_random >= H)/length(H_random)
+
+    # pvalue calculation with pseudo count
+    pvalue<-(sum(H_random >= H)+1)/length(H_random)
     return(list(H=H, pvalue=pvalue))
 }
