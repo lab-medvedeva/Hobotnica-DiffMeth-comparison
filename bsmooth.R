@@ -51,9 +51,9 @@ GSE138598={
     n1=8
     n2=9
     type = "WGBS"
-    samples<-c('SRR10247148', 'SRR10247150', 'SRR10247157', 'SRR10247162', 'SRR10247172', 'SRR10247173', 'SRR10247182',
-        'SRR10247188', 'SRR10247192', 'SRR10247200', 'SRR10247205', 'SRR10247214', 'SRR10247216', 'SRR10247226',
-        'SRR10247229', 'SRR10247238', 'SRR10247241')
+    samples <- c('T2D_1', 'T2D_2', 'T2D_3', 'T2D_4', 'T2D_5', 'T2D_6', 'T2D_7', 'T2D_8',
+        'Control_1', 'Control_2', 'Control_3', 'Control_4', 'Control_5', 'Control_6', 'Control_7', 
+        'Control_8', 'Control_9')
 },
 GSE119980={
     n1=6
@@ -107,7 +107,6 @@ compl_cases<-bsseq_stranded_smooth_filtered[complete.cases(getMeth(bsseq_strande
 
 # Save smoothed dataset
 save(compl_cases, file = paste0(dataset_name,".smoothed.rda"))
-
 # Save number of CpG sites for test
 method_name<-"bsmooth"
 cpg_num_table<-read.table(file = "cpg_num_table", sep="\t")
@@ -133,13 +132,13 @@ qcutoff = c(0+q, 1-q)
 cutoffs<-quantile(tstats_df$tstat.corrected, qcutoff, na.rm = TRUE)
 dmls<-tstats_df[tstats_df$tstat.corrected <= cutoffs[1] | tstats_df$tstat.corrected >= cutoffs[2],]
 dmls_filtered<-dmls[!is.na(dmls$tstat.corrected),]
-dmls_sorted<-dmls_filtered[order(dmls_filtered$tstat.corrected),]
+dmls_sorted<-dmls_filtered[order(-abs(dmls_filtered$tstat.corrected)),]
 write.table(dmls_sorted, paste(dataset_name, method_name, "full", sep = "_"), sep = '\t')
 
 # Filter by mean methylation difference (> 15%)
 dmls_diff_cut<-dmls_sorted[abs(dmls_sorted$group2.means - dmls_sorted$group1.means) >= 0.15,]
 write.table(dmls_diff_cut, paste(dataset_name, method_name, "cut", sep = "_"), sep = '\t')
-
+dmls_diff_cut <-read.csv( paste(dataset_name, method_name, "cut", sep = "_"), sep ='\t')
 # Get Hobotnica score
 signature<-rownames(dmls_diff_cut)
 sig_length<-length(signature)

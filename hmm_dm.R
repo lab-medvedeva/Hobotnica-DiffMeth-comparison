@@ -154,7 +154,9 @@ for(chr in chrs)
 
 # Get DMCs
 dmls <-cpgs[cpgs$max.p >= 0.95,]
+dmls <- rbind(dmls[dmls$Hypo.pos == 1,], dmls[dmls$Hyper.pos == 1,])
 dmls_sorted<-dmls[order(-dmls$max.p),]
+
 write.table(dmls_sorted, paste(dataset_name, method_name, "full", sep = "_"), sep = '\t')
 
 # Filter by mean methylation difference (> 15%)

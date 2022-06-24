@@ -44,7 +44,7 @@ if __name__ == "__main__":
         if call(f'fastqc {srr}_trimmed.fq.gz', shell=True)!=0:
             sys.exit(f"FastQC trimmed {srr} failed")
 
-        if call(f'bismark --p {cores_num} --gzip {args.reference} {srr}_trimmed.fq.gz', shell=True)!=0:
+        if call(f'bismark -p {cores_num} --gzip {args.reference} {srr}_trimmed.fq.gz', shell=True)!=0:
             sys.exit(f"bismark {srr} failed")
 
         os.remove(f'{srr}_trimmed.fq.gz')

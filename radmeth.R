@@ -48,9 +48,9 @@ GSE138598={
     n1=8
     n2=9
     type = "WGBS"
-    samples<-c('SRR10247148', 'SRR10247150', 'SRR10247157', 'SRR10247162', 'SRR10247172', 'SRR10247173', 'SRR10247182',
-        'SRR10247188', 'SRR10247192', 'SRR10247200', 'SRR10247205', 'SRR10247214', 'SRR10247216', 'SRR10247226',
-        'SRR10247229', 'SRR10247238', 'SRR10247241')
+    samples <- c('T2D_1', 'T2D_2', 'T2D_3', 'T2D_4', 'T2D_5', 'T2D_6', 'T2D_7', 'T2D_8',
+        'Control_1', 'Control_2', 'Control_3', 'Control_4', 'Control_5', 'Control_6', 'Control_7', 
+        'Control_8', 'Control_9')
 },
 GSE119980={
     n1=6
@@ -129,7 +129,7 @@ write.table(design_matrix, file="radmeth_design_matrix", sep="\t", col.names=TRU
 # Run radmeth
 system('radmeth regression -factor trt_bin radmeth_design_matrix radmeth_table > radmeth_result.bed')
 system('radmeth adjust -bins 1:200:1 radmeth_result.bed > radmeth_result_adjusted.bed')
-cpgs<-read.table("radmeth_result_adjusted.bed", header=FALSE)
+cpgs<-read.table("result_adjusted.bed", header=FALSE)
 cpgs<-cpgs[cpgs$V7 != "-1-1",]
 write.table(cpgs, file="radmeth_result_adjusted_filtered", sep="\t", col.names=FALSE, row.names = FALSE, quote = FALSE)
 

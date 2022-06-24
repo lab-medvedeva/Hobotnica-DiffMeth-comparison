@@ -25,7 +25,7 @@ get_H_score<-function(dataset_name, method, signature, trt, cores)
 
     # P-value calculation
     registerDoParallel(cores)
-    H_random<-foreach(i = 1:5000, .combine = "c") %dopar% 
+    H_random<-foreach(i = 1:10000, .combine = "c") %dopar% 
     {
         H_chunk<-get_random_H(sig_length, trt, ratio_table)
         H_chunk
@@ -37,6 +37,6 @@ get_H_score<-function(dataset_name, method, signature, trt, cores)
     write.table(H_random, random_table_name, sep="\t", col.names=FALSE, row.names = FALSE, quote = FALSE)
 
     # pvalue calculation with pseudo count
-    pvalue<-(sum(H_random >= H)+1)/length(H_random)
+    pvalue<-(sum(H_random > H)+1)/(length(H_random)+1)
     return(list(H=H, pvalue=pvalue))
 }
