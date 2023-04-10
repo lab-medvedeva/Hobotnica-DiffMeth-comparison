@@ -53,6 +53,8 @@ GSE149608={
     type = "WGBS"
     chrs<-c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 
       '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y')
+    trt<-rep(c('group1','group2'), times = c(n1,n2))
+
 },
 GSE138598={
     n1=8
@@ -60,6 +62,8 @@ GSE138598={
     type = "WGBS"
     chrs<-c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 
       '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y')
+    trt<-rep(c('group1','group2'), times = c(n1,n2))
+
 },
 GSE119980={
     n1=6
@@ -67,6 +71,8 @@ GSE119980={
     type = "WGBS"
     chrs<-c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 
       '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y')
+    trt<-rep(c('group1','group2'), times = c(n1,n2))
+
 },
 GSE117593={
     n1=25
@@ -74,6 +80,8 @@ GSE117593={
     type = "WGBS"
      chrs<-c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 
       '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y')
+     trt<-rep(c('group1','group2'), times = c(n1,n2))
+
 },
 GSE148060={
     n1=21
@@ -81,6 +89,8 @@ GSE148060={
     type = "RRBS"
     chrs<-c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', 
       '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y')
+    trt<-rep(c('group1','group2'), times = c(n1,n2))
+
 },
 GSE103886={
     n1=11
@@ -88,13 +98,25 @@ GSE103886={
     type = "RRBS"
     chrs<-c('1','2','3','4','5','6','7','8','9','10',
       '11','12','13','14','15','16','17','18','19','X','Y')
+    trt<-rep(c('group1','group2'), times = c(n1,n2))
+
 },
+ GSE150592=
+ {
+    n1=15
+    n2=15
+    samples <- c('SRR11790875','SRR11790876','SRR11790877','SRR11790878','SRR11790879','SRR11790880','SRR11790881','SRR11790882','SRR11790883','SRR11790884','SRR11790885','SRR11790886','SRR11790887','SRR11790888','SRR11790889','SRR11790890','SRR11790891','SRR11790892','SRR11790893','SRR11790894','SRR11790895','SRR11790896','SRR11790897','SRR11790898','SRR11790899','SRR11790900','SRR11790901','SRR11790902','SRR11790903','SRR11790904')
+    trt<-c('group2','group1','group2','group1','group2','group1','group2','group1','group2','group1','group2','group1','group1','group2','group2','group1','group1','group2','group2','group1','group1','group2','group2','group1','group2','group1','group2','group1','group1','group2')
+    type = "RRBS"
+    chrs<-c('1','2','3','4','5','6','7','8','9','10',
+      '11','12','13','14','15','16','17','18','19','X','Y')
+
+},
+
 {
     stop("Unknown dataset ID", call.=FALSE)
 }
 )
-
-trt<-rep(c('group1','group2'), times = c(n1,n2))
 
 # Prepare input files for HMM-DM
 meth<-read.table(file = "meth_table", sep="\t")
@@ -126,18 +148,18 @@ new_row<-data.frame(dataset_name, method_name, cpg_num)
 names(new_row)<-c("dataset","method","cpg_num")
 cpg_num_table<-rbind(cpg_num_table, new_row)
 write.table(cpg_num_table, file = "cpg_num_table", sep="\t", col.names=TRUE, quote = FALSE)
-
 # Run HMM-DM
 run_hmm <- function(chr){
     total_reads<-read.table(paste0("HMM_DM_cov_chr",chr))
+    total_reads_fixed <- total_reads[,c(1, which(trt == "group1") + 1,which(trt == "group2") + 1)]
     meth_reads<-read.table(paste0("HMM_DM_meth_chr",chr))
+    meth_reads_fixed <- meth_reads[,c(1, which(trt == "group1") + 1,which(trt == "group2") + 1)]
     output_dir<-paste0("HMM_DM_chr",chr)
     system(paste0('mkdir ', output_dir))
     HMM.DM(total_reads, meth_reads, n1=n1, n2=n2, iterations=60, chromosome=chr, opt$hmm_dir, output_dir, meanDiff.cut = 0, min.percent = 0)
 }
 
 results <- mclapply(chrs, run_hmm, mc.cores = opt$cores)
-
 cpgs<-data.frame(chr=character(), pos=numeric(), Hypo.pos=double(), EM.pos=double(), Hyper.pos=double(),
   max.p=double(), mCstatus=numeric(), meanDiff=double(), DM.status=numeric(), index=numeric(),
   meanCov.test=double(), meanCov.control=double(), stringsAsFactors=FALSE)
@@ -156,15 +178,24 @@ for(chr in chrs)
 dmls <-cpgs[cpgs$max.p >= 0.95,]
 dmls <- rbind(dmls[dmls$Hypo.pos == 1,], dmls[dmls$Hyper.pos == 1,])
 dmls_sorted<-dmls[order(-dmls$max.p),]
-
 write.table(dmls_sorted, paste(dataset_name, method_name, "full", sep = "_"), sep = '\t')
+
+dmls_diff_sorted<-dmls_sorted[order(-abs(dmls_sorted$meanDiff)) ,]
+write.table(dmls_diff_sorted, paste(dataset_name, method_name, "meth_diff_full", sep = "_"), sep = '\t')
 
 # Filter by mean methylation difference (> 15%)
 dmls_diff_cut<-dmls_sorted[abs(dmls_sorted$meanDiff) >= 0.15,]
 write.table(dmls_diff_cut, paste(dataset_name, method_name, "cut", sep = "_"), sep = '\t')
 
 # Get Hobotnica score
-signature<-paste0(dmls_diff_cut$chr,":",dmls_diff_cut$pos)
+dmls_diff_cut <- read.csv(paste(dataset_name, method_name, "cut", sep = "_"), sep = '\t')
+if(dim(dmls_diff_cut)[1] == 0)
+{
+    signature <- c()
+} else {
+    signature<-paste0(dmls_diff_cut$chr,":",dmls_diff_cut$pos)
+}
+
 sig_length<-length(signature)
 result <-get_H_score(dataset_name, method_name, signature, trt, opt$cores)
 
@@ -186,3 +217,15 @@ new_row<-data.frame(dataset_name, method_name, result$H, type, result$pvalue, si
 names(new_row)<-c("dataset","method","H","type","pvalue","length")
 H_100<-rbind(H_100, new_row)
 write.table(H_100, file = "H_100", sep="\t", col.names=TRUE, quote = FALSE)
+
+# Get Hobotnica score for top 10 signature
+signature_top_10<-head(signature, 10)
+sig_length<-length(signature_top_10)
+result <-get_H_score(dataset_name, method_name, signature_top_10, trt, opt$cores) 
+
+# Write H score to result table
+H_10<-read.table("H_10", header=TRUE, sep='\t')
+new_row<-data.frame(dataset_name, method_name, result$H, type, result$pvalue, sig_length)
+names(new_row)<-c("dataset","method","H","type","pvalue","length")
+H_10<-rbind(H_10, new_row)
+write.table(H_10, file = "H_10", sep="\t", col.names=TRUE, quote = FALSE)

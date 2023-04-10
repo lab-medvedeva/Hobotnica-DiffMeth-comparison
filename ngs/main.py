@@ -25,7 +25,7 @@ if __name__ == "__main__":
     if call(f'bismark_genome_preparation {args.mm39_reference}', shell=True)!=0:
         sys.exit(f"mm39 bismark_genome_preparation failed")
 
-    datasets = ['GSE149608', 'GSE138598', 'GSE119980', 'GSE117593', 'GSE148060', 'GSE103886']
+    datasets = ['GSE149608', 'GSE138598', 'GSE119980', 'GSE150592', 'GSE148060', 'GSE103886']
     for dataset in datasets:
         if not os.path.exists(f'{dataset}'):
             os.makedirs(f'{dataset}')
@@ -40,7 +40,7 @@ if __name__ == "__main__":
                 sys.exit(f"{dataset_preprocessing_py} failed")
 
         # Run methods for DMC identification
-        WGBS_datasets = ['GSE149608', 'GSE138598', 'GSE119980', 'GSE117593']
+        WGBS_datasets = ['GSE149608', 'GSE138598', 'GSE119980']
         
         for dataset in datasets:
 

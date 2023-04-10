@@ -62,18 +62,6 @@ GSE119980={
     samples <-c('SRR7830270', 'SRR7830271', 'SRR7830272', 'SRR7830273', 'SRR7830274', 'SRR7830275', 'SRR7830276',
         'SRR7830277', 'SRR7830278', 'SRR7830279', 'SRR7830280', 'SRR7830281')
 },
-GSE117593={
-    n1=25
-    n2=25
-    type = "WGBS"
-    samples<-c('SRR7587054', 'SRR7587055', 'SRR7587056', 'SRR7587057', 'SRR7587058', 'SRR7587059', 'SRR7587060',
-        'SRR7587061', 'SRR7587062', 'SRR7587063', 'SRR7587064', 'SRR7587065', 'SRR7587066', 'SRR7587067', 'SRR7587068',
-        'SRR7587069', 'SRR7587070', 'SRR7587071', 'SRR7587072', 'SRR7587073', 'SRR7587074', 'SRR7587075', 'SRR7587076',
-        'SRR7587077', 'SRR7587078', 'SRR7587079', 'SRR7587080', 'SRR7587081', 'SRR7587082', 'SRR7587083', 'SRR7587084',
-        'SRR7587085', 'SRR7587086', 'SRR7587087', 'SRR7587088', 'SRR7587089', 'SRR7587090', 'SRR7587091', 'SRR7587092',
-        'SRR7587093', 'SRR7587094', 'SRR7587095', 'SRR7587096', 'SRR7587097', 'SRR7587098', 'SRR7587099', 'SRR7587100',
-        'SRR7587101', 'SRR7587102', 'SRR7587103')
-},
 {
     stop("Unknown dataset ID", call.=FALSE)
 }
@@ -82,7 +70,7 @@ GSE117593={
 files<-paste0(samples, ".cov")
 samples_group1<-samples[1:n1]
 samples_group2<-samples[(n1+1):(n1+n2)]
-trt<-rep(c('group1','group2'), times = c(n1,n2))
+trt<-rep(c('group1', 'group2'), times = c(n1, n2))
 
 # Load filtered data
 load(paste0(dataset_name,".rda"))
@@ -135,11 +123,15 @@ dmls_filtered<-dmls[!is.na(dmls$tstat.corrected),]
 dmls_sorted<-dmls_filtered[order(-abs(dmls_filtered$tstat.corrected)),]
 write.table(dmls_sorted, paste(dataset_name, method_name, "full", sep = "_"), sep = '\t')
 
+dmls_diff_sorted<-dmls_sorted[order(-abs(dmls_sorted$group2.means - dmls_sorted$group1.means)),]
+write.table(dmls_diff_sorted, paste(dataset_name, method_name, "meth_diff_full", sep = "_"), sep = '\t')
+
 # Filter by mean methylation difference (> 15%)
 dmls_diff_cut<-dmls_sorted[abs(dmls_sorted$group2.means - dmls_sorted$group1.means) >= 0.15,]
 write.table(dmls_diff_cut, paste(dataset_name, method_name, "cut", sep = "_"), sep = '\t')
-dmls_diff_cut <-read.csv( paste(dataset_name, method_name, "cut", sep = "_"), sep ='\t')
+
 # Get Hobotnica score
+dmls_diff_cut <-read.csv( paste(dataset_name, method_name, "cut", sep = "_"), sep ='\t')
 signature<-rownames(dmls_diff_cut)
 sig_length<-length(signature)
 result<-get_H_score(dataset_name, method_name, signature, trt, opt$cores)
@@ -162,3 +154,15 @@ new_row<-data.frame(dataset_name, method_name, result$H, type, result$pvalue, si
 names(new_row)<-c("dataset","method","H","type","pvalue","length")
 H_100<-rbind(H_100, new_row)
 write.table(H_100, file = "H_100", sep="\t", col.names=TRUE, quote = FALSE)
+
+# Get Hobotnica score for top 10 signature
+signature_top_10<-head(signature, 10)
+sig_length<-length(signature_top_10)
+result <-get_H_score(dataset_name, method_name, signature_top_10, trt, opt$cores) 
+
+# Write H score to result table
+H_10<-read.table("H_10", header=TRUE, sep='\t')
+new_row<-data.frame(dataset_name, method_name, result$H, type, result$pvalue, sig_length)
+names(new_row)<-c("dataset","method","H","type","pvalue","length")
+H_10<-rbind(H_10, new_row)
+write.table(H_10, file = "H_10", sep="\t", col.names=TRUE, quote = FALSE)
