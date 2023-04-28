@@ -203,32 +203,37 @@ p <- ggplot(H_GSE178216, aes(x=method, y = H, fill=method, pattern = tag))+
 ggsave(paste0("GSE178216_example_barplot.png"),  plot = p,  device = "png", width = 15,  height = 8,  units = "cm")
 
 ################### Datasets ###################
-p<-ggplot(H_all_100, aes(x = method,
-                         y = H,
-                         fill = method)) + 
-  facet_wrap(~ result_prefix, ncol = 4,labeller = as_labeller(dataset_names)) + 
-  geom_bar_pattern(aes(fill = method, pattern_angle = tag),
-                   stat = "identity",
+p <- ggplot(H_all_100,aes(x=method, y = H, fill=method, pattern = tag))+
+  facet_wrap(~ result_prefix,  ncol = 4, labeller = as_labeller(dataset_names))+
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        legend.position="bottom",
+        text = element_text(size=12, face = "bold"),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12),
+        legend.key.size = unit(0.5, "cm"),
+        legend.margin = margin(t = -0.3, unit='cm'))+
+  geom_bar_pattern(stat = "identity",
                    position='dodge',
+                   aes(pattern  = tag),
                    color = "black", 
                    pattern_fill = "black",
-                   pattern_spacing = 0.05,
-                   pattern_key_scale_factor = 0.6,
-                   pattern_density = 0.05)+
-  labs(x ='Method', y = "H", pattern_angle = "Signature type") + 
-  scale_pattern_angle_manual(values=c(H_all = 0, H_100 = 45, H_10 = 135))+
-  scale_pattern_manual(labels = c_tag_names)+
-  scale_pattern_density_manual(values=c( H_all = 0, H_100 = 0.1, H_10 = 0.1))+
-  scale_x_discrete(drop=FALSE) +
+                   pattern_angle = 45,
+                   pattern_density = 0.1,
+                   pattern_spacing = 0.03,
+                   pattern_key_scale_factor = 0.6)+
+  guides(pattern = guide_legend(nrow = 3,override.aes = list(fill = "white")),
+         fill = guide_legend(ncol=2, override.aes = list(pattern = "none"))) +
+  labs(x ='Method', y = "H", pattern = "Signature type") + 
   scale_fill_brewer(name = "Method", labels = c_methods, palette="Set1", drop = F)+ 
-  scale_y_continuous(limits = c(0, 1))+
-  theme(axis.title.x=element_blank(), 
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank(), 
-        legend.position="bottom", 
-        text = element_text(size=20)) + #, face = "bold"
-  guides(pattern_angle = guide_legend(nrow = 4,override.aes = list(fill = "gray")),
-          fill = guide_legend(nrow = 4,override.aes = list(pattern = "none"))) 
+  scale_pattern_manual(values = c('none', 'stripe', 'circle'),
+                       labels = c_tag_names)+
+  scale_x_discrete(drop=FALSE)
 
 ggsave(paste0("datasets_microarray_all.png"),  plot = p,  device = "png", width = 30,  height = 20,  units = "cm")
 

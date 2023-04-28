@@ -47,7 +47,7 @@ if __name__ == "__main__":
 		| awk 'BEGIN{ OFS="\t"; }{ print $2, $3, $4 }' \
 		| sort-bed - \
 		> cpgIslandExt.hg38.bed""", shell=True)!=0:
-	sys.exit("wget hg38 cpgIslandExt failed")
+		sys.exit("wget hg38 cpgIslandExt failed")
 
 	################ Generate hypo and hyper methylated regions
 	for i in range(number_of_simulations):
