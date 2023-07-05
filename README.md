@@ -1,0 +1,1 @@
+Budkina, A., Medvedeva, Y. A., & Stupnikov, A. (2023). Assessing the Differential Methylation Analysis Quality for Microarray and NGS Platforms. International journal of molecular sciences, 24(10), 8591. https://doi.org/10.3390/ijms24108591
